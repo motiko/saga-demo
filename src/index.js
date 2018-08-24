@@ -1,16 +1,16 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import registerServiceWorker from './registerServiceWorker';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import './index.css'
+import App from './App'
+import registerServiceWorker from './registerServiceWorker'
 import {createStore, applyMiddleware} from 'redux'
 import createSagaMiddleware from 'redux-saga'
-import { delay } from 'redux-saga'
-import { put, takeEvery, all } from 'redux-saga/effects'
+import {delay} from 'redux-saga'
+import {put, takeEvery, all, call} from 'redux-saga/effects'
 
-function* incrementAsync() {
-  yield delay(1000)
-  yield put({ type: 'INCREMENT' })
+export function* incrementAsync() {
+  yield call(delay, 1000)
+  yield put({type: 'INCREMENT'})
 }
 
 function* watchIncrementAsync() {
@@ -18,9 +18,7 @@ function* watchIncrementAsync() {
 }
 
 function* rootSaga() {
-  yield all([
-    watchIncrementAsync()
-  ])
+  yield all([watchIncrementAsync()])
 }
 
 const sagaMiddleware = createSagaMiddleware()
@@ -40,11 +38,10 @@ function reducer(state = 0, action) {
   }
 }
 
-
 const action = type => store.dispatch({type})
 
 store.subscribe(() => {
-  console.log(`State: ${ store.getState() }`)
+  console.log(`State: ${store.getState()}`)
 })
 
 action('INCREMENT')
@@ -57,6 +54,5 @@ action('INCREMENT_ASYNC')
 action('BOOM')
 action('BOOM')
 
-
 // ReactDOM.render(<App />, document.getElementById('root'));
-registerServiceWorker();
+registerServiceWorker()
