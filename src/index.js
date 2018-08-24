@@ -4,6 +4,17 @@ import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import {createStore, applyMiddleware} from 'redux'
+import createSagaMiddleware from 'redux-saga'
+
+function* helloSaga() {
+  console.log('Hello Sagas!')
+}
+
+const sagaMiddleware = createSagaMiddleware()
+
+const store = createStore(reducer, applyMiddleware(sagaMiddleware))
+
+sagaMiddleware.run(helloSaga)
 
 function reducer(state = 0, action) {
   switch (action.type) {
@@ -16,7 +27,6 @@ function reducer(state = 0, action) {
   }
 }
 
-const store = createStore(reducer)
 
 const action = type => store.dispatch({type})
 
