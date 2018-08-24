@@ -23,7 +23,17 @@ function* rootSaga() {
 
 const sagaMiddleware = createSagaMiddleware()
 
-const store = createStore(reducer, applyMiddleware(sagaMiddleware))
+const loggerMiddleware = store => next => action => {
+  let result = next(action)
+  console.log('Action', action)
+  console.log('State', store.getState())
+  return result
+}
+
+const store = createStore(
+  reducer,
+  applyMiddleware( sagaMiddleware, loggerMiddleware),
+)
 
 sagaMiddleware.run(rootSaga)
 
@@ -40,9 +50,7 @@ function reducer(state = 0, action) {
 
 const action = type => store.dispatch({type})
 
-store.subscribe(() => {
-  console.log(`State: ${store.getState()}`)
-})
+store.subscribe(() => {})
 
 action('INCREMENT')
 action('INCREMENT')
