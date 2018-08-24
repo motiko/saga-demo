@@ -1,66 +1,57 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import './index.css'
-import App from './App'
-import registerServiceWorker from './registerServiceWorker'
-import {createStore, applyMiddleware} from 'redux'
-import createSagaMiddleware from 'redux-saga'
-import {delay} from 'redux-saga'
-import {put, takeEvery, all, call} from 'redux-saga/effects'
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import registerServiceWorker from "./registerServiceWorker";
+import { createStore, applyMiddleware } from "redux";
+import createSagaMiddleware from "redux-saga";
+import { delay } from "redux-saga";
+import { put, takeEvery, all, call } from "redux-saga/effects";
 
-export function* incrementAsync() {
-  yield call(delay, 1000)
-  yield put({type: 'INCREMENT'})
+function jsonFetch(url) {
+  return fetch(url).then(r => r.json());
 }
 
-function* watchIncrementAsync() {
-  yield takeEvery('INCREMENT_ASYNC', incrementAsync)
+function* fetchQuestions() {
+  const response = yield call(
+    jsonFetch,
+    "https://opentdb.com/api.php?amount=10"
+  );
+  console.log("response", response);
+  yield put({ type: "QUESTIONS_RECIEVED", questions: response.results });
+}
+
+function* watchRequestQuestions() {
+  yield takeEvery("REQUEST_QUESTIONS", fetchQuestions);
 }
 
 function* rootSaga() {
-  yield all([watchIncrementAsync()])
+  yield all([watchRequestQuestions()]);
 }
 
-const sagaMiddleware = createSagaMiddleware()
+const sagaMiddleware = createSagaMiddleware();
 
-const loggerMiddleware = store => next => action => {
-  let result = next(action)
-  console.log('Action', action)
-  console.log('State', store.getState())
-  return result
-}
+const store = createStore(reducer, applyMiddleware(sagaMiddleware));
 
-const store = createStore(
-  reducer,
-  applyMiddleware( sagaMiddleware, loggerMiddleware),
-)
+sagaMiddleware.run(rootSaga);
 
-sagaMiddleware.run(rootSaga)
-
-function reducer(state = 0, action) {
+function reducer(state = { questions: [] }, action) {
   switch (action.type) {
-    case 'INCREMENT':
-      return state + 1
-    case 'DECREMENT':
-      return state - 1
+    case "QUESTIONS_RECIEVED":
+      return { questions: action.questions };
     default:
-      return state
+      return state;
   }
 }
 
-const action = type => store.dispatch({type})
+const action = type => store.dispatch({ type });
 
-store.subscribe(() => {})
+store.subscribe(() => {
+  const state = store.getState();
+  console.log("Questions", state.questions);
+});
 
-action('INCREMENT')
-action('INCREMENT')
-action('DECREMENT')
-action('DECREMENT')
-action('BOOM')
-action('INCREMENT_ASYNC')
-action('INCREMENT_ASYNC')
-action('BOOM')
-action('BOOM')
+action("REQUEST_QUESTIONS");
 
 // ReactDOM.render(<App />, document.getElementById('root'));
-registerServiceWorker()
+registerServiceWorker();

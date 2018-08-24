@@ -1,17 +1,12 @@
-## Table of Contents
-
-- [Basic Concepts](#basic-concepts)
-  - [Sagas](#sagas)
-  - [Iterators](#iterators)
-  - [Generators](#generators)
-- [Redux Saga](#redux-saga)
-  - [Advantages](#advantages)
-  - [Effects](#effects)
-
-## Basic Concepts
-### Sagas
-### Iterators
-### Generators
-## Redux Saga
+## redux-saga intro
+### Basic Concepts
+ - run to completion
+ - iterators
+ - generators
+ - saga
+ - effects
 ### Advantages
+ - fine flow control (race, all, cancel e.t.c)
+ - actions stay side effect free
+ - testability
 ### Effects
