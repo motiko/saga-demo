@@ -5,16 +5,29 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import {createStore, applyMiddleware} from 'redux'
 import createSagaMiddleware from 'redux-saga'
+import { delay } from 'redux-saga'
+import { put, takeEvery, all } from 'redux-saga/effects'
 
-function* helloSaga() {
-  console.log('Hello Sagas!')
+function* incrementAsync() {
+  yield delay(1000)
+  yield put({ type: 'INCREMENT' })
+}
+
+function* watchIncrementAsync() {
+  yield takeEvery('INCREMENT_ASYNC', incrementAsync)
+}
+
+function* rootSaga() {
+  yield all([
+    watchIncrementAsync()
+  ])
 }
 
 const sagaMiddleware = createSagaMiddleware()
 
 const store = createStore(reducer, applyMiddleware(sagaMiddleware))
 
-sagaMiddleware.run(helloSaga)
+sagaMiddleware.run(rootSaga)
 
 function reducer(state = 0, action) {
   switch (action.type) {
@@ -31,8 +44,7 @@ function reducer(state = 0, action) {
 const action = type => store.dispatch({type})
 
 store.subscribe(() => {
-  console.log('store updated')
-  console.log(store.getState())
+  console.log(`State: ${ store.getState() }`)
 })
 
 action('INCREMENT')
@@ -40,7 +52,11 @@ action('INCREMENT')
 action('DECREMENT')
 action('DECREMENT')
 action('BOOM')
+action('INCREMENT_ASYNC')
+action('INCREMENT_ASYNC')
+action('BOOM')
+action('BOOM')
 
 
-ReactDOM.render(<App />, document.getElementById('root'));
+// ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();
